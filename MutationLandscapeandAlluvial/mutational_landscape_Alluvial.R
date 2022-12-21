@@ -393,63 +393,6 @@ dev.off()
 print('Finished ploting mutational landscape!')
 
 
-tl = rep(0, ncol(p1m))
-for (i in 1:ncol(p1m)){
-  a = length(which(p1m[,i]==3))
-  b = length(which(p1m[,i]==1 | p1m[,i]==2))
-  tl[i] = b/(a+b)
-}
-
-p1a$Change = tl
-library(plyr)
-mu <- ddply(p1a, "Subtype", summarise, grp.mean=mean(Change,na.rm = T))
-p1a$isMSK = ifelse(rownames(p1a) %in% paste0("PS",295:365),1,0)
-ggplot(p1a[p1a$isMSK==0,], aes(x=Change, color=Subtype, fill = Subtype)) +
-  geom_density(alpha = 0.5) +
-  geom_vline(data=mu, aes(xintercept=grp.mean, color=Subtype),
-             linetype="dashed")+
-  scale_color_manual(values = c("#c7d34d","#55d9c0",'#107050')) +
-  scale_fill_manual(values = c("#c7d34d","#55d9c0",'#107050')) +
-  theme_classic()+
-  scale_y_continuous(expand = c(0,0))+
-  #scale_x_continuous(expand = c(0,0),limits = c(0,90))+
-  labs(x = 'Number of lost alterations', y = 'Density')+
-  theme(axis.text.x = element_text(colour = "black"),
-        axis.text.y = element_text(colour = "black"))
-
-p1mt = as.data.frame(t(p1m))
-#p1mt = p1mt[p1a$Subtype==sbt,] #ignore MYC gain
-p1mt = cbind(p1mt,p1a[,c("Hypermutation","MMR")])
-p1mt$MMR[which(p1mt$MMR==4)]=2; p1mt$Hypermutation[which(p1mt$Hypermutation==4)]=2
-p1st = data.frame(matrix(nrow = ncol(p1mt), ncol = 4))
-names(p1st) = c("wt", "ini", "rec", 'shr')
-rownames(p1st) = names(p1mt)
-for (i in 1:nrow(p1st)){
-  x = p1mt[,i]
-  x = x[!is.na(x)]
-  p1st[i,1] = sum(x==0)
-  p1st[i,2] = sum(x==1)
-  p1st[i,3] = sum(x==2)
-  p1st[i,4] = sum(x==3)
-}
-
-p1stp = p1st/apply(p1st,1,sum)
-
-tmp = p1stp[,c('ini','rec','shr')]
-tmp$alt = apply(tmp,1,sum)
-tmp = tmp[order(tmp$alt),]
-tmp$inin = tmp$ini/tmp$alt
-tmp$recn = tmp$rec/tmp$alt
-tmp$shrn = tmp$shr/tmp$alt
-p1st$npt = (p1st$ini + p1st$rec + p1st$shr)/(p1st$ini + p1st$rec + p1st$shr + p1st$wt)
-tmp$npt = p1st$npt[match(rownames(tmp), rownames(p1st))]
-tmp = tmp[order(tmp$shrn,tmp$npt, decreasing = T),]
-par(mar = c(5,4,2,2), las=2)
-barplot(100*t(tmp[,c('inin','recn','shrn')]), col = c("#d02a7c","#010078","#e2b449"),
-        names.arg = rownames(tmp),xlab = '',ylab = 'Proportion (%)', ylim=c(0,110))
-for (i in 1:nrow(tmp)){
-  text(1.2*i-0.6,105,labels = 100*round(tmp$npt[i],2), cex = 0.7)
-}
 
 
 ###
