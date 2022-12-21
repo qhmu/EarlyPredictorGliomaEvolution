@@ -16,3 +16,6 @@ Each folder correspond to one part of the analysis. For example, *PreprocessingD
 ## Additional resources
 
 The processed DNA and RNA sequencing data of the longitudinal glioma pairs have been uploaded to the CELLO2 website (www.wang-lab-hkust.com:3838/cello2 ) for visualization and exploration.
+
+## Contact
+For technical issues please send an email to qmu@connect.ust.hk or jgwang@ust.hk.
